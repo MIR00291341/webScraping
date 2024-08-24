@@ -17,12 +17,16 @@ def get_price(soup_sp):
       return price
 
 
+pageLink=[]
+for i in range(1,4):
+  url = 'https://www.ebay.com/sch/i.html?_from=R40&_nkw=mobile+phones&_sacat=0&_ipg=240&_pgn='+str(i)
+  pageLink.append(url)
 
-url = 'https://www.ebay.com/sch/i.html?_from=R40&_nkw=mobile+phones&_sacat=0&_ipg=240&_pgn=1'
-req=requests.get(url)
-soup=BeautifulSoup(req.text,'html.parser')
-link = soup.find_all('a',class_='s-item__link')
 
+for url in pageLink:
+  req=requests.get(url)
+  soup=BeautifulSoup(req.text,'html.parser')
+  link = soup.find_all('a',class_='s-item__link')
 list_Of_links = []
 for i in link:
     list_Of_links.append(i.get("href"))
@@ -36,7 +40,6 @@ for link in list_Of_links:
 
   data["TITLE"].append(get_title(soup_sp))
   data["PRICE"].append(get_price(soup_sp))
-
 ebay_data_frame = pd.DataFrame.from_dict(data)
 ebay_data_frame.to_csv('ebay1.csv')
-print(ebay_data_frame)
+ebay_data_frame
