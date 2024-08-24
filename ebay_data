@@ -1,0 +1,43 @@
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+import numpy as np
+
+def get_title(soup_sp):
+        try:
+          Product_Name = soup_sp.find('span', attrs={'class': 'ux-textspans ux-textspans--BOLD'}).text.strip()
+        except AttributeError:
+          Product_Name= ''
+        return Product_Name
+
+def get_price(soup_sp):
+      try:
+        price = soup_sp.find('div', attrs={'class': 'x-price-primary'}).text
+      except AttributeError:
+        price = ''
+      return price
+
+
+
+url = 'https://www.ebay.com/sch/i.html?_from=R40&_nkw=mobile+phones&_sacat=0&_ipg=240&_pgn=1'
+req=requests.get(url)
+soup=BeautifulSoup(req.text,'html.parser')
+link = soup.find_all('a',class_='s-item__link')
+
+list_Of_links = []
+for i in link:
+    list_Of_links.append(i.get("href"))
+
+data={"TITLE":[],"PRICE":[]}
+
+for link in list_Of_links:
+  single_page_req = requests.get(link)
+  soup_sp= BeautifulSoup(single_page_req.content, 'html.parser')
+
+
+  data["TITLE"].append(get_title(soup_sp))
+  data["PRICE"].append(get_price(soup_sp))
+
+ebay_data_frame = pd.DataFrame.from_dict(data)
+ebay_data_frame.to_csv('ebay1.csv')
+print(ebay_data_frame)
